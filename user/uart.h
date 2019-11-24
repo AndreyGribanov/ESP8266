@@ -6,7 +6,7 @@
 
 //прототипы:
 void init_UART();//инициализация порта uart c портами uart PB6,PB7
-
+void send_UART(  char* value);// процедура отправки данных в порт uart
 
 
 

@@ -12,6 +12,7 @@
 #include "uart.h"//подключаемый файл настройкой порта и функциями для работы
 #include "delay.h"//функции генерации пауз в программе
 
+extern unsigned  char uartdata[250]; //буфер принятых данных uart
 
 void init_RCC()//настройка тактирования,пользуемся картинкой CUBE MX
 {
@@ -44,9 +45,9 @@ int main(void)
 {
 	
 init_RCC();
-
-
-
+init_UART();
+NVIC_EnableIRQ (USART2_IRQn);// Функции CMSIS разрешающие прерывания в NVIC от UART2
+__enable_irq ();// Разрешаем глобальные прерывания
 
 
 
