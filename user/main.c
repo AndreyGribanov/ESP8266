@@ -8,9 +8,22 @@
 // ESP8266 управляется AT-командами по UART,имеет на борту свой МК,который можно перепрошить под свои задачи
 // без freeRTOS, хотя сразу видно,что решение разделить на отдельные подзадачи
 
+
+
+
+
+
 #include "stm32f4xx.h"
 #include "uart.h"//подключаемый файл настройкой порта и функциями для работы
 #include "delay.h"//функции генерации пауз в программе
+#include "esp8266.h"
+
+
+const char* ssid = "mu-hru";// имя WiFi-сети, к которой будет подключаться ESP8266
+const char* password = "muhru";          
+
+
+
 
 extern unsigned  char uartdata[250]; //буфер принятых данных uart
 
@@ -48,8 +61,10 @@ init_RCC();
 init_UART();
 NVIC_EnableIRQ (USART2_IRQn);// Функции CMSIS разрешающие прерывания в NVIC от UART2
 __enable_irq ();// Разрешаем глобальные прерывания
+init_esp8266();//инициализация модуля
+connection_wifi();//подключение к сети WIFI
 
-
-
+while(1);
+	
 }
 	

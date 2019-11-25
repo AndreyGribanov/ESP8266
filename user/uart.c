@@ -2,7 +2,7 @@
 
 unsigned  char uartdata[250]; //буфер принятых данных uart
 uint8_t n=0;//номер байта в буфере  uart ,глобальная
-void init_UART()//инициализация порта uart c портами uart PB6,PB7
+void init_UART(void)//инициализация порта uart c портами uart PB6,PB7
 {
 RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;// Разрешить тактирование портаPORTA
 	
@@ -31,7 +31,7 @@ RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;// Разрешить тактирование портаPORTA
 
 }//end init_UART
 //*************************************************************************************************************
-void send_UART(  unsigned char* value)// процедура отправки данных в порт uart из массива value
+void send_UART( char* value)// процедура отправки данных в порт uart из массива value
 {
 	int i=0;
 	while (value[i])//пока данные не равны 0

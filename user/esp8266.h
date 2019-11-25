@@ -3,9 +3,10 @@
 #include "stm32f4xx.h"
 
 //прототипы:
-void init_esp8266();//инициализация модуля
-
+void init_esp8266(void);//инициализация модуля
+void connection_wifi(void);//подключение к сети WIFI
 
 
 
 #endif
+
