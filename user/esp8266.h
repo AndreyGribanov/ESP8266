@@ -5,7 +5,7 @@
 //прототипы:
 void init_esp8266(void);//инициализация модуля
 void connection_wifi(void);//подключение к сети WIFI
-
+void TCP_server(void);//создать соединение по протоколу TCP в режиме сервера,N порта константа в main.c
 
 
 #endif

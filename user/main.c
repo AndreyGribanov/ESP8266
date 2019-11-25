@@ -20,12 +20,12 @@
 
 
 const char* ssid = "mu-hru";// имя WiFi-сети, к которой будет подключаться ESP8266
-const char* password = "muhru";          
-
-
-
+const char* password = "muhru";//" здесь признак строки
+const char* port = "10200";//номер порта TCP сервера из  ESP8266, прописать при переадресации в WIFI роутер
+const char* time = "300";//время,через которое ESP8266, отключит соединение неактивного TCP клиента 
 
 extern unsigned  char uartdata[250]; //буфер принятых данных uart
+
 
 void init_RCC()//настройка тактирования,пользуемся картинкой CUBE MX
 {
@@ -63,6 +63,7 @@ NVIC_EnableIRQ (USART2_IRQn);// Функции CMSIS разрешающие прерывания в NVIC от U
 __enable_irq ();// Разрешаем глобальные прерывания
 init_esp8266();//инициализация модуля
 connection_wifi();//подключение к сети WIFI
+TCP_server();//создать TCP соединение в режиме сервера	29
 
 while(1);
 	
