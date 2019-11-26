@@ -22,7 +22,10 @@
 const char* ssid = "mu-hru";// имя WiFi-сети, к которой будет подключаться ESP8266
 const char* password = "muhru";//" здесь признак строки
 const char* port = "10200";//номер порта TCP сервера из  ESP8266, прописать при переадресации в WIFI роутер
-const char* time = "300";//время,через которое ESP8266, отключит соединение неактивного TCP клиента 
+const char* time = "300";//время,через которое ESP8266, отключит соединение неактивного TCP клиента,сек,7200 max
+const char* ip_update_host = "hldns.ru";  // Указываем хост (адрес сайта) службы DynDNS
+const char* ip_update_get = "/update/FY4SYU777F2CU5FCN6B44X7GHMHB3X";  // Указываем GET-запрос (набор параметров) адреса идентификации в службе DynDNS
+
 
 extern unsigned  char uartdata[250]; //буфер принятых данных uart
 
@@ -51,9 +54,6 @@ while (!(RCC->CR & RCC_CR_PLLRDY)){}; //wait for PLL ready
 }//end init_RCC()
 //*****************************************************************************************************************
 
-
-
-
 int main(void)
 {
 	
@@ -63,7 +63,11 @@ NVIC_EnableIRQ (USART2_IRQn);// Функции CMSIS разрешающие прерывания в NVIC от U
 __enable_irq ();// Разрешаем глобальные прерывания
 init_esp8266();//инициализация модуля
 connection_wifi();//подключение к сети WIFI
-TCP_server();//создать TCP соединение в режиме сервера	29
+
+	TCP_server();//создать TCP соединение в режиме сервера	29
+
+ip_update_DDNS();	
+
 
 while(1);
 	
