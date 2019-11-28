@@ -9,16 +9,12 @@
 // без freeRTOS, хотя сразу видно,что решение разделить на отдельные подзадачи
 
 
-
-
-
-
 #include "stm32f4xx.h"
 #include "uart.h"//подключаемый файл настройкой порта и функциями для работы
 #include "delay.h"//функции генерации пауз в программе
 #include "esp8266.h"
-#include "string.h"//стандартная библиотека для работы со строками(функция strcom в ней)
-
+#include "string.h"//стандартная библиотека для работы со строками(функции  memcpy,strncom в ней)
+#include "stdbool.h"//стандартная библиотека для работы с типом bool
 
 const char* ssid = "mu-hru";// имя WiFi-сети, к которой будет подключаться ESP8266
 const char* password = "muhru";//" здесь признак строки
@@ -28,9 +24,12 @@ const char* ip_update_host = "hldns.ru";  // Указываем хост (адрес сайта) службы
 const char* ip_update_get = "/update/FY4SYU777F2CU5FCN6B44X7GHMHB3X";  // Указываем GET-запрос (набор параметров) адреса идентификации в службе DynDNS
 const char on[4]="1111";//массив сранения,при котором будет одно действие
 const char of[4]="2222";//массив сранения,при котором будет другое действие
-char copy[4]={0,0,0,0};
+const char* ip_local_static="192.168.1.204";//ip,который мы зафиксировали за модулем в домашней сети
+#define	lengsh   sizeof(ip_local_static)/sizeof(*ip_local_static)//число элементов массива IP адреса
+
+char copy[4]={0,0,0,0};//в него будем копировать часть данных из буфера для анализа данных
 extern unsigned  char uartdata[250]; //буфер принятых данных uart
-int i=5;//условная переменная
+int i=5;//условная переменная,используемая при отладке
 
 void init_RCC()//настройка тактирования,пользуемся картинкой CUBE MX
 {
@@ -83,7 +82,7 @@ GPIOE->PUPDR |= GPIO_PUPDR_PUPDR4_0;//01- подтяжка к +,10-к -
 
 int main(void)
 {
-static uint32_t t=0;	//счетчик времени
+static uint32_t t,t1=0;	//счетчики времени
 init_RCC();
 init_GPIO();	
 init_UART();
@@ -97,6 +96,7 @@ ip_update_DDNS();
 
 clear_uartdata();
 
+
 while(1)
 {
 delay_ms(1);	//периодичность опроса приемного буфера UART
@@ -106,7 +106,7 @@ if (!(uartdata[0]==0))   //если после очистки в буфере появились данные
 }
 
 clear_uartdata();
-t++;
+t++;t1++;
 //memset (uartdata, 0, 255);//заполняет 255 элементов 0,можно символы '',функция в string.h
 //n=0;
 if (!(strncmp(copy,on,4))){i=1;GPIOA->BSRR |= GPIO_BSRR_BR6;}//если оба совпали по элементам,4элемента для сравнения,включая регистр
@@ -119,6 +119,23 @@ TCP_server();//создать TCP соединение в режиме сервера
 ip_update_DDNS();	
 clear_uartdata();
 t=0;
+}
+
+while(t1>19000)//примерно 2 раза в минуту проверяем состояние соединения
+{
+if (!(strncmp(wifi_ip(),ip_local_static,lengsh)))
+{
+GPIOA->BSRR |= GPIO_BSRR_BR7;
+    if (status()){send_Connect();               }
+    
+
+}
+else
+{GPIOA->BSRR |= GPIO_BSRR_BS7;}	
+
+
+
+t1=0;
 }
 
 

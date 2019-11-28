@@ -1,14 +1,16 @@
 #include "stm32f4xx.h"
 #include "uart.h"//
 #include "delay.h"
+#include "string.h"//стандартная библиотека для работы со строками
+#include "stdbool.h"//стандартная библиотека для работы с типом bool
 extern  char* ssid ;
 extern  char*password;
 extern char* port;
 extern char* time;
 extern char* ip_update_host;
 extern char* ip_update_get;
-
-
+extern  char uartdata[250]; //буфер принятых данных uart
+static char data[15];// с учетом всех точек
 void init_esp8266(void)//инициализация модуля
 {
 	clear_uartdata();
@@ -91,12 +93,38 @@ void ip_update_DDNS(void)//обновление фактического IP на сервере сервиса DDNS
 //1,CLOSED,у меня N1
 }//end ip_update_DDNS
 //*************************************************************************************************************
-//void status(void)//определение состояния соединения
-//{
-//clear_uartdata();	
-//send_UART("AT+CIPSTATUS\r\n");//
-//delay_ms(1); //Без пауз после командыв буфере данных НЕ БУДЕТ ,как минимум, при отладке!!!!
-//	//нормальный ответ:STATUS:2    OK  |4 индекса идут 0d0a0d0a
-//  //2-IP получен,3-подключен,4-отключен
-//}
+ bool status(void)//определение состояния соединения
+{
+clear_uartdata();	
+send_UART("AT+CIPSTATUS\r\n");//
+delay_ms(10); //Без нормальных пауз после команды в буфере данных для обработки НЕ БУДЕТ(будут,но нас уже там нет) 
+//нормальный ответ:STATUS:2,3    OK  //2-IP получен,3-подключен,4-отключен
+
+if ((uartdata[7]=='2')||(uartdata[7]=='3'))
+return true;
+else	
+return false;
+}
+//****************************************************************************************************************
+char* wifi_ip(void)//вернет указатель на массив,кот содержит присвоеный ip модулю домашней сети
+{
+ clear_uartdata();
+ send_UART("AT+CIFSR\r\n"); //1-разрешить множественнные соединения
+	delay_ms(4); //2 мС МАЛО,IP даже не весь успевает прочитаться!!!
+	memcpy(data, &uartdata[14],15); 
+	delay_ms(10); //заканчиваем запись в буфер,чтоб полученные данные при следующей воманде не перемешивались
+	return data;
+		
+}
+//**************************************************************************************************************
+void send_Connect(void)
+{
+
+send_UART("AT+CIPSEND=0,11\r\n");	//передать 89 байт даннных,считать точно
+	  delay_ms(20);
+send_UART("Connected\r\n");
+	delay_ms(20);
+   	clear_uartdata(); 
+}
+
 
